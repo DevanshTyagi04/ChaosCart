@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import { ORDERS_API, USERS_API, PRODUCTS_API } from '../services/api';
 import { ShoppingBag } from 'lucide-react';
 
 const Orders = () => {
@@ -16,9 +16,9 @@ const Orders = () => {
   const fetchData = async () => {
     try {
       const [ordersRes, usersRes, productsRes] = await Promise.all([
-        api.get('/orders'),
-        api.get('/users'),
-        api.get('/products')
+        ORDERS_API.get('/'),
+        USERS_API.get('/'),
+        PRODUCTS_API.get('/')
       ]);
       setOrders(ordersRes.data);
       setUsers(usersRes.data);
@@ -38,7 +38,7 @@ const Orders = () => {
     e.preventDefault();
     if (!userId || !productId) return setError("Please select both a user and a product");
     try {
-      await api.post('/orders', { userId, productId, quantity });
+      await ORDERS_API.post('/', { userId, productId, quantity });
       setUserId('');
       setProductId('');
       setQuantity('1');

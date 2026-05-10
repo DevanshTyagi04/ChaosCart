@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import { PRODUCTS_API } from '../services/api';
 import { PackagePlus, Tag } from 'lucide-react';
 
 const Products = () => {
@@ -12,7 +12,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await api.get('/products');
+      const res = await PRODUCTS_API.get('/');
       setProducts(res.data);
     } catch (err) {
       setError('Failed to fetch products');
@@ -28,7 +28,7 @@ const Products = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/products', { name, price });
+      await PRODUCTS_API.post('/', { name, price });
       setName('');
       setPrice('');
       fetchProducts();

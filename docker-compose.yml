@@ -1,15 +1,66 @@
-version: '3.8'
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: chaoscart-db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "4001:4001"
+    env_file:
+      - ./services/user-service/.env
+    depends_on:
+      - postgres-user
+
+  product-service:
+    build: ./services/product-service
+    ports:
+      - "4002:4002"
+    env_file:
+      - ./services/product-service/.env
+    depends_on:
+      - postgres-product
+
+  order-service:
+    build: ./services/order-service
+    ports:
+      - "4003:4003"
+    env_file:
+      - ./services/order-service/.env
+    depends_on:
+      - postgres-order
+      - user-service
+      - product-service
+
+  postgres-user:
+    image: postgres:16-alpine
     environment:
+      POSTGRES_DB: chaoscart_users
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-volumes:
-  postgres-data:
+      - "5433:5432"
+
+  postgres-product:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chaoscart_products
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+
+  postgres-order:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chaoscart_orders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"

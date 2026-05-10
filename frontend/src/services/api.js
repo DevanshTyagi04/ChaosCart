@@ -1,7 +1,13 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: '/api'
+export const USERS_API = axios.create({
+  baseURL: 'http://localhost:4001/api/users'
 });
 
-export default api;
+export const PRODUCTS_API = axios.create({
+  baseURL: 'http://localhost:4002/api/products'
+});
+
+export const ORDERS_API = axios.create({
+  baseURL: 'http://localhost:4003/api/orders'
+});

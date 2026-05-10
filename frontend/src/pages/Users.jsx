@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import { USERS_API } from '../services/api';
 import { UserPlus, Mail } from 'lucide-react';
 
 const Users = () => {
@@ -12,7 +12,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get('/users');
+      const res = await USERS_API.get('/');
       setUsers(res.data);
     } catch (err) {
       setError('Failed to fetch users');
@@ -28,7 +28,7 @@ const Users = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/users', { name, email });
+      await USERS_API.post('/', { name, email });
       setName('');
       setEmail('');
       fetchUsers();

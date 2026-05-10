@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'order-service' });
+  res.status(200).json({ status: 'ok', service: 'order-service' });
 });
 
 app.use('/api/orders', orderRoutes);
