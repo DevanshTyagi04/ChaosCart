@@ -4,7 +4,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const logger = pino({
   name: 'order-service',
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.NODE_ENV === 'test' ? 'silent' : (process.env.LOG_LEVEL || 'info'),
   timestamp: pino.stdTimeFunctions.isoTime,
   redact: [
     'req.headers.cookie',
