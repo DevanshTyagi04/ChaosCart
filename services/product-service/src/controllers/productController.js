@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const logger = require('../utils/logger');
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ const getProducts = async (req, res) => {
 
     res.json(products);
   } catch (error) {
-    console.error('Error fetching products:', error.message);
+    logger.error({ err: error, operation: 'getProducts', reqId: req.id }, 'Error fetching products');
 
     res.status(500).json({
       error: 'Failed to fetch products',
@@ -34,7 +35,7 @@ const getProductById = async (req, res) => {
 
     res.json(product);
   } catch (error) {
-    console.error('Error fetching product:', error.message);
+    logger.error({ err: error, operation: 'getProductById', id: req.params.id, reqId: req.id }, 'Error fetching product');
 
     res.status(500).json({
       error: 'Failed to fetch product',
@@ -59,9 +60,10 @@ const createProduct = async (req, res) => {
       },
     });
 
+    logger.info({ productId: newProduct.id, operation: 'createProduct', reqId: req.id }, 'Product created successfully');
     res.status(201).json(newProduct);
   } catch (error) {
-    console.error('Error creating product:', error.message);
+    logger.error({ err: error, operation: 'createProduct', name: req.body.name, reqId: req.id }, 'Error creating product');
 
     res.status(500).json({
       error: 'Failed to create product',

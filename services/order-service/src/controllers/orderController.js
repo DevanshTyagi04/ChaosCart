@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const axios = require('axios');
+const logger = require('../utils/logger');
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ const getOrders = async (req, res) => {
     const orders = await prisma.order.findMany();
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching orders:', error.message);
+    logger.error({ err: error, operation: 'getOrders', reqId: req.id }, 'Error fetching orders');
 
     res.status(500).json({
       error: 'Failed to fetch orders',
@@ -39,6 +40,7 @@ const createOrder = async (req, res) => {
         `${USER_SERVICE_URL}/api/users/${userId}`
       );
     } catch (error) {
+      logger.warn({ err: error, operation: 'createOrder_verifyUser', userId, reqId: req.id }, 'User verification failed');
       return res.status(404).json({
         error: 'User not found',
       });
@@ -50,6 +52,7 @@ const createOrder = async (req, res) => {
         `${PRODUCT_SERVICE_URL}/api/products/${productId}`
       );
     } catch (error) {
+      logger.warn({ err: error, operation: 'createOrder_verifyProduct', productId, reqId: req.id }, 'Product verification failed');
       return res.status(404).json({
         error: 'Product not found',
       });
@@ -64,9 +67,10 @@ const createOrder = async (req, res) => {
       },
     });
 
+    logger.info({ orderId: newOrder.id, userId, productId, operation: 'createOrder', reqId: req.id }, 'Order created successfully');
     res.status(201).json(newOrder);
   } catch (error) {
-    console.error('Error creating order:', error.message);
+    logger.error({ err: error, operation: 'createOrder', userId: req.body.userId, productId: req.body.productId, reqId: req.id }, 'Error creating order');
 
     res.status(500).json({
       error: 'Failed to create order',

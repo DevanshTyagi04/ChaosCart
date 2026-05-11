@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const logger = require('../utils/logger');
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ const getUsers = async (req, res) => {
 
     res.json(users);
   } catch (error) {
-    console.error('Error fetching users:', error.message);
+    logger.error({ err: error, operation: 'getUsers', reqId: req.id }, 'Error fetching users');
 
     res.status(500).json({
       error: 'Failed to fetch users',
@@ -34,7 +35,7 @@ const getUserById = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error('Error fetching user:', error.message);
+    logger.error({ err: error, operation: 'getUserById', id: req.params.id, reqId: req.id }, 'Error fetching user');
 
     res.status(500).json({
       error: 'Failed to fetch user',
@@ -56,9 +57,10 @@ const createUser = async (req, res) => {
       data: { name, email },
     });
 
+    logger.info({ userId: newUser.id, operation: 'createUser', reqId: req.id }, 'User created successfully');
     res.status(201).json(newUser);
   } catch (error) {
-    console.error('Error creating user:', error.message);
+    logger.error({ err: error, operation: 'createUser', name: req.body.name, email: req.body.email, reqId: req.id }, 'Error creating user');
 
     res.status(500).json({
       error: 'Failed to create user',
