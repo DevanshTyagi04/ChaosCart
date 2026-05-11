@@ -5,10 +5,10 @@ const logger = require('../utils/logger');
 const prisma = new PrismaClient();
 
 const USER_SERVICE_URL =
-  process.env.USER_SERVICE_URL || 'http://localhost:4001';
+  process.env.USER_SERVICE_URL || 'http://user-service:4001';
 
 const PRODUCT_SERVICE_URL =
-  process.env.PRODUCT_SERVICE_URL || 'http://localhost:4002';
+  process.env.PRODUCT_SERVICE_URL || 'http://product-service:4002';
 
 const getOrders = async (req, res) => {
   try {
