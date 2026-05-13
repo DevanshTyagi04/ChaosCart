@@ -692,7 +692,7 @@ docker compose up -d
 
 
 
----
+
 
 # 🔮 Future Improvements
 
