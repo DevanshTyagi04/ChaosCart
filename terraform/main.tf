@@ -87,6 +87,11 @@ resource "aws_instance" "chaoscart_ec2" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.chaoscart_sg.id]
 
+  root_block_device {
+    volume_size = 25
+    volume_type = "gp3"
+  }
+
   user_data = <<-EOF
 #!/bin/bash
 
@@ -105,6 +110,40 @@ curl -SL https://github.com/docker/compose/releases/latest/download/docker-compo
 chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
 usermod -aG docker ec2-user
+
+cd /home/ec2-user
+
+git clone https://github.com/devanshtyagi04/chaoscart.git
+
+chown -R ec2-user:ec2-user /home/ec2-user/chaoscart
+
+cd chaoscart
+
+cat > services/user-service/.env <<EOL
+PORT=4001
+DATABASE_URL="postgresql://postgres:password@postgres-user:5432/chaoscart_users?schema=public"
+EOL
+
+cat > services/product-service/.env <<EOL
+PORT=4002
+DATABASE_URL="postgresql://postgres:password@postgres-product:5432/chaoscart_products?schema=public"
+EOL
+
+cat > services/order-service/.env <<EOL
+PORT=4003
+DATABASE_URL="postgresql://postgres:password@postgres-order:5432/chaoscart_orders?schema=public"
+USER_SERVICE_URL="http://user-service:4001"
+PRODUCT_SERVICE_URL="http://product-service:4002"
+EOL
+
+sleep 30
+
+docker compose pull
+
+sleep 10
+
+docker compose up -d
+
 EOF
 
   tags = {
