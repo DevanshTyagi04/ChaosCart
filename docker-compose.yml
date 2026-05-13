@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/devanshtyagi04/chaoscart-frontend:latest
     depends_on:
       - user-service
       - product-service
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   user-service:
-    build: ./services/user-service
+    image: ghcr.io/devanshtyagi04/chaoscart-user-service:latest
     env_file:
       - ./services/user-service/.env
     depends_on:
@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   product-service:
-    build: ./services/product-service
+    image: ghcr.io/devanshtyagi04/chaoscart-product-service:latest
     env_file:
       - ./services/product-service/.env
     depends_on:
@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
 
   order-service:
-    build: ./services/order-service
+    image: ghcr.io/devanshtyagi04/chaoscart-order-service:latest
     env_file:
       - ./services/order-service/.env
     depends_on:

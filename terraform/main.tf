@@ -1,5 +1,16 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
 }
 
 resource "aws_security_group" "chaoscart_sg" {
@@ -72,12 +83,32 @@ data "aws_ami" "amazon_linux" {
 
 resource "aws_instance" "chaoscart_ec2" {
   ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t2.small"
-  key_name               = "EC2 Tutorial"
+  instance_type          = var.instance_type
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.chaoscart_sg.id]
 
+  user_data = <<-EOF
+#!/bin/bash
+
+dnf update -y
+
+dnf install -y docker git
+
+systemctl enable docker
+systemctl start docker
+
+mkdir -p /usr/libexec/docker/cli-plugins
+
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+  -o /usr/libexec/docker/cli-plugins/docker-compose
+
+chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+
+usermod -aG docker ec2-user
+EOF
+
   tags = {
-    Name = "ChaosCart"
+    Name = var.instance_name
   }
 }
 
