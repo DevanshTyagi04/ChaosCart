@@ -76,22 +76,7 @@ The goal of the project is not only to build application functionality, but also
 
 ## High-Level System Flow
 
-```text
-                                  ┌────────────────────────┐
-                                  │   AWS EC2 Instance     │
-                                  │                        │
-       [ Internet ] ─────HTTP 80──┼─► [ Nginx Reverse Proxy ]
-                                  │            │           │
-                        ┌─────────┼────────────┼───────────┼────────┐
-                        │         ▼            ▼           │        │
-                     [Frontend]  /api/users  /api/orders  /api/products
-                    (React/Vite)      │           │              │
-                                      ▼           ▼              ▼
-                               [User Service] [Order Service] [Product Service]
-                                      │           │              │
-                                      ▼           ▼              ▼
-                               [(Postgres)] [(Postgres)] [(Postgres)]
-```
+![Architecture Flow](./screenshots/architecture.png)
 
 ---
 
@@ -632,6 +617,7 @@ Containers Started Automatically
 ![Terraform Apply](./screenshots/terraform-apply1.png)
 ![Terraform Apply](./screenshots/terraform-apply2.png)
 ![Terraform Apply](./screenshots/terraform-apply3.png)
+![Terraform Apply](./screenshots/terraform-apply4.png)
 
 ---
 

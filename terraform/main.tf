@@ -65,24 +65,10 @@ resource "aws_security_group" "chaoscart_sg" {
   }
 }
 
-data "aws_ami" "amazon_linux" {
-  most_recent = true
 
-  owners = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
 
 resource "aws_instance" "chaoscart_ec2" {
-  ami                    = data.aws_ami.amazon_linux.id
+  ami                    = "ami-01b40e1bcccae197a"
   instance_type          = var.instance_type
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.chaoscart_sg.id]
