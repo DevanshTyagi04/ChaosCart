@@ -37,6 +37,7 @@ The project focuses heavily on:
 - Cloud deployment workflows
 - Production-style networking
 - Structured logging
+- Automated infrastructure provisioning
 
 The goal of the project is not only to build application functionality, but also to simulate a realistic cloud deployment and DevOps workflow.
 
@@ -51,6 +52,10 @@ The goal of the project is not only to build application functionality, but also
 - Added structured JSON logging using Pino and pino-http
 - Wrote resilient integration tests using Jest and Supertest
 - Provisioned AWS infrastructure using Terraform
+- Automated EC2 bootstrapping using Terraform `user_data`
+- Implemented zero-touch infrastructure and application deployment workflow
+- Automated Docker, Docker Compose, and application provisioning on AWS EC2
+- Deployed immutable container images from GitHub Container Registry (GHCR)
 - Deployed the full stack on AWS EC2 using Docker Compose
 - Configured private inter-service communication using Docker networking
 - Implemented health checks and restart policies for improved container resiliency
@@ -195,6 +200,8 @@ for validating users/products before order creation.
 - GitHub Actions CI/CD pipelines
 - GHCR container image publishing
 - Infrastructure as Code using Terraform
+- Automated EC2 provisioning and bootstrapping
+- Automated application deployment workflow
 - AWS EC2 deployment
 - Structured logging using Pino
 - Health checks and restart policies
@@ -259,6 +266,8 @@ chaoscart/
 │   └── order-service/
 ├── terraform/
 │   ├── main.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars
 │   └── outputs.tf
 └── docker-compose.yml
 ```
@@ -566,25 +575,41 @@ Infrastructure provisioning is handled using Terraform.
 
 ---
 
-## Provisioned Resources
+## Provisioned Resources & Automation
 
-Terraform provisions:
-
-- EC2 instance
-- Security Group
-- Networking rules
-- Public IP output
+Terraform provisions and bootstraps:
+ 
+- AWS EC2 infrastructure
+- Security Groups
+- Dynamic Amazon Linux AMI selection
+- Automated Docker installation
+- Automated Docker Compose installation
+- Automated repository cloning
+- Automated environment variable generation
+- Automated container deployment
+- Public infrastructure outputs
 
 ---
 
-## Infrastructure Benefits
+## Infrastructure Automation Flow
 
-Using Terraform enables:
-
-- reproducible infrastructure
-- version-controlled cloud setup
-- automated provisioning
-- easier environment recreation
+```
+terraform apply
+      ↓
+AWS EC2 Provisioned
+      ↓
+Docker Installed Automatically
+      ↓
+Docker Compose Installed
+      ↓
+Repository Cloned
+      ↓
+Environment Files Generated
+      ↓
+GHCR Images Pulled
+      ↓
+Containers Started Automatically
+```
 
 ---
 
@@ -655,7 +680,7 @@ cd terraform
 terraform init
 terraform apply
 ```
-
+Terraform automatically provisions EC2 infrastructure, installs Docker & Docker Compose, clones the repository, generates environment configuration, pulls GHCR container images, and starts the complete application stack.
 ---
 
 ### EC2 Setup
@@ -663,7 +688,7 @@ terraform apply
 SSH into instance:
 
 ```bash
-ssh -i <your-key>.pem ubuntu@<PUBLIC_IP>
+ssh -i <your-key>.pem ec2-user@<PUBLIC_IP>
 ```
 
 ---
@@ -690,6 +715,21 @@ docker compose up -d
 
 ---
 
+# 🧠 Challenges & Debugging
+
+During development and deployment, several real-world infrastructure and orchestration challenges were encountered and resolved:
+ 
+- Docker startup race conditions during EC2 bootstrapping
+- EC2 storage exhaustion while pulling large container images
+- `cloud-init` provisioning and automation debugging
+- Docker Compose orchestration timing issues
+- Reverse proxy routing and container networking issues
+- Container startup dependency sequencing
+- Infrastructure reproducibility and state synchronization
+
+
+---
+
 
 
 
@@ -713,17 +753,19 @@ Potential future enhancements:
 # 🎯 Resume / Portfolio Highlights
 
 This project demonstrates:
-
-- cloud-native application architecture
+ 
+- Cloud-native application architecture
 - Docker containerization
 - CI/CD automation
 - Infrastructure as Code
-- production-style deployment patterns
-- observability and monitoring
-- backend service orchestration
-- reverse proxy networking
+- Automated infrastructure provisioning
+- Production-style deployment patterns
+- Observability and monitoring
+- Backend service orchestration
+- Reverse proxy networking
 - AWS cloud deployment
-- infrastructure lifecycle management
+- Infrastructure lifecycle management
+- Deployment automation workflows
 
 The project was designed to simulate realistic DevOps and platform engineering workflows beyond simple application development.
 
