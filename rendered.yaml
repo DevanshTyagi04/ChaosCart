@@ -1,0 +1,652 @@
+---
+# Source: chaoscart/templates/namespace.yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chaoscart
+---
+# Source: chaoscart/templates/postgres-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: chaoscart
+
+type: Opaque
+
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres123
+---
+# Source: chaoscart/templates/frontend.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: chaoscart
+  labels:
+    app: frontend
+
+spec:
+  selector:
+    app: frontend
+
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+# Source: chaoscart/templates/order-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: chaoscart
+  labels:
+    app: order-service
+
+spec:
+  selector:
+    app: order-service
+
+  ports:
+    - name: http
+      port: 4003
+      targetPort: 4003
+---
+# Source: chaoscart/templates/postgres-order.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: postgres-order
+  namespace: chaoscart
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: postgres-order
+
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# Source: chaoscart/templates/postgres-product.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: postgres-product
+  namespace: chaoscart
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: postgres-product
+
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# Source: chaoscart/templates/postgres-user.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: postgres-user
+  namespace: chaoscart
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: postgres-user
+
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# Source: chaoscart/templates/product-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: chaoscart
+  labels:
+    app: product-service
+
+spec:
+  selector:
+    app: product-service
+
+  ports:
+    - name: http
+      port: 4002
+      targetPort: 4002
+---
+# Source: chaoscart/templates/user-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: chaoscart
+  labels:
+    app: user-service
+
+spec:
+  selector:
+    app: user-service
+
+  ports:
+    - name: http
+      port: 4001
+      targetPort: 4001
+---
+# Source: chaoscart/templates/frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: frontend
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: frontend
+
+  template:
+    metadata:
+      labels:
+        app: frontend
+
+    spec:
+      containers:
+        - name: frontend
+
+          image: "ghcr.io/devanshtyagi04/chaoscart-frontend:latest"
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+---
+# Source: chaoscart/templates/order-service.yaml
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: order-service
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: order-service
+
+  template:
+    metadata:
+      labels:
+        app: order-service
+
+    spec:
+      containers:
+      - name: order-service
+
+        image: "ghcr.io/devanshtyagi04/chaoscart-order-service:latest"
+
+        imagePullPolicy: Always
+
+        env:
+          - name: DB_HOST
+            value: "postgres-order"
+
+          - name: DB_PORT
+            value: "5432"
+
+          - name: DB_NAME
+            value: "chaoscart_orders"
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
+
+        ports:
+          - containerPort: 4003
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Source: chaoscart/templates/product-service.yaml
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: product-service
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: product-service
+
+  template:
+    metadata:
+      labels:
+        app: product-service
+
+    spec:
+      containers:
+      - name: product-service
+
+        image: "ghcr.io/devanshtyagi04/chaoscart-product-service:latest"
+
+        imagePullPolicy: Always
+
+        env:
+          - name: DB_HOST
+            value: "postgres-product"
+
+          - name: DB_PORT
+            value: "5432"
+
+          - name: DB_NAME
+            value: "chaoscart_products"
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
+
+        ports:
+          - containerPort: 4002
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4002
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Source: chaoscart/templates/user-service.yaml
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: user-service
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: user-service
+
+  template:
+    metadata:
+      labels:
+        app: user-service
+
+
+    spec:
+      containers:
+      - name: user-service
+
+        image: "ghcr.io/devanshtyagi04/chaoscart-user-service:latest"
+
+        imagePullPolicy: Always
+
+        env:
+          - name: DB_HOST
+            value: "postgres-user"
+
+          - name: DB_PORT
+            value: "5432"
+
+          - name: DB_NAME
+            value: "chaoscart_users"
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
+
+        ports:
+          - containerPort: 4001
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4001
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+
+---
+# Source: chaoscart/templates/postgres-order.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres-order
+  namespace: chaoscart
+
+spec:
+  serviceName: postgres-order
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres-order
+
+  template:
+    metadata:
+      labels:
+        app: postgres-order
+
+    spec:
+      containers:
+        - name: postgres
+
+          image: postgres:16-alpine
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_DB
+              value: chaoscart_orders
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+# Source: chaoscart/templates/postgres-product.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres-product
+  namespace: chaoscart
+
+spec:
+  serviceName: postgres-product
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres-product
+
+  template:
+    metadata:
+      labels:
+        app: postgres-product
+
+    spec:
+      containers:
+        - name: postgres
+
+          image: postgres:16-alpine
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_DB
+              value: chaoscart_products
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+# Source: chaoscart/templates/postgres-user.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres-user
+  namespace: chaoscart
+
+spec:
+  serviceName: postgres-user
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres-user
+
+  template:
+    metadata:
+      labels:
+        app: postgres-user
+
+    spec:
+      containers:
+        - name: postgres
+
+          image: postgres:16-alpine
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_DB
+              value: chaoscart_users
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: 1Gi

@@ -1,0 +1,55 @@
+namespace: chaoscart
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/devanshtyagi04/chaoscart-frontend
+    tag: latest
+
+userService:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/devanshtyagi04/chaoscart-user-service
+    tag: latest
+  database:
+    host: postgres-user
+    port: 5432
+    name: chaoscart_users
+
+productService:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/devanshtyagi04/chaoscart-product-service
+    tag: latest
+  database:
+    host: postgres-product
+    port: 5432
+    name: chaoscart_products
+
+orderService:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/devanshtyagi04/chaoscart-order-service
+    tag: latest
+  database:
+    host: postgres-order
+    port: 5432
+    name: chaoscart_orders
+
+monitoring:
+  enabled: true
+
+postgres:
+  user: postgres
+  password: postgres123
+
+  storage: 1Gi
+
+  userdb:
+    name: chaoscart_users
+
+  productdb:
+    name: chaoscart_products
+
+  orderdb:
+    name: chaoscart_orders
