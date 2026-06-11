@@ -4,6 +4,7 @@ const pinoHttp = require('pino-http');
 const crypto = require('crypto');
 const logger = require('./utils/logger');
 const productRoutes = require('./routes/productRoutes');
+const { httpRequestsTotal } = require('./metrics');
 
 const app = express();
 
@@ -15,6 +16,18 @@ app.use(pinoHttp({
     return req.headers['x-request-id'] || crypto.randomUUID();
   }
 }));
+app.use((req, res, next) => {
+
+  res.on('finish', () => {
+    httpRequestsTotal.inc({
+      method: req.method,
+      route: req.route?.path || req.path,
+      status: res.statusCode
+    });
+  });
+
+  next();
+});
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'product-service' });

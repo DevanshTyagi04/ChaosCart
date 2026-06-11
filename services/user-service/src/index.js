@@ -5,7 +5,7 @@ const port = process.env.PORT || 4001;
 
 const { register } = require('./metrics');
 
-const { httpRequestsTotal } = require('./metrics');
+
 
 app.listen(port, () => {
   logger.info(`User service running on port ${port}`);
@@ -16,15 +16,3 @@ app.get('/metrics', async (req, res) => {
   res.end(await register.metrics());
 });
 
-app.use((req, res, next) => {
-
-  res.on('finish', () => {
-    httpRequestsTotal.inc({
-      method: req.method,
-      route: req.route?.path || req.path,
-      status: res.statusCode
-    });
-  });
-
-  next();
-});
