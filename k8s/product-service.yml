@@ -1,0 +1,97 @@
+# product-service.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: product-service
+
+  template:
+    metadata:
+      labels:
+        app: product-service
+
+    spec:
+
+      initContainers:
+      - name: wait-for-db
+
+        image: busybox:1.36
+
+        command:
+          - sh
+          - -c
+          - |
+            until nc -z postgres-product 5432;
+            do
+              echo "Waiting for postgres..."
+              sleep 2
+            done
+
+      containers:
+      - name: product-service
+
+        image: ghcr.io/devanshtyagi04/chaoscart-product-service:latest
+
+        command:
+          - npm
+          - start
+
+        ports:
+        - containerPort: 4002
+
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: PRODUCT_DATABASE_URL
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4002
+
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4002
+
+          initialDelaySeconds: 15
+          periodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: chaoscart
+
+spec:
+  selector:
+    app: product-service
+
+  ports:
+  - port: 4002
+    targetPort: 4002
+
+  type: ClusterIP

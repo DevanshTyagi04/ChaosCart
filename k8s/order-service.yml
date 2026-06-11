@@ -1,0 +1,109 @@
+# order-service.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: chaoscart
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: order-service
+  
+  template:
+    metadata:
+      labels:
+        app: order-service
+
+    spec:
+
+      initContainers:
+      - name: wait-for-db
+
+        image: busybox:1.36
+
+        command:
+          - sh
+          - -c
+          - |
+            until nc -z postgres-order 5432;
+            do
+              echo "Waiting for postgres..."
+              sleep 2
+            done
+
+      containers:
+      - name: order-service
+
+        image: ghcr.io/devanshtyagi04/chaoscart-order-service:latest
+
+        command:
+          - npm
+          - start
+
+        ports:
+        - containerPort: 4003
+
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: ORDER_DATABASE_URL
+
+        - name: USER_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: chaoscart-config
+              key: USER_SERVICE_URL
+
+        - name: PRODUCT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: chaoscart-config
+              key: PRODUCT_SERVICE_URL
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+
+          initialDelaySeconds: 15
+          periodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: chaoscart
+
+spec:
+  selector:
+    app: order-service
+
+  ports:
+  - port: 4003
+    targetPort: 4003
+
+  type: ClusterIP

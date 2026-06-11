@@ -1,14 +1,9 @@
-# configmap.yaml
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: chaoscart-config
   namespace: chaoscart
+
 data:
   USER_SERVICE_URL: "http://user-service:4001"
   PRODUCT_SERVICE_URL: "http://product-service:4002"
-
-  USER_DB_NAME: "chaoscart_users"
-  PRODUCT_DB_NAME: "chaoscart_products"
-  ORDER_DB_NAME: "chaoscart_orders"
