@@ -1,4 +1,4 @@
-namespace: chaoscart
+
 
 frontend:
   replicaCount: 2

@@ -3,9 +3,9 @@ kind: Job
 
 metadata:
   name: user-db-migration
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation
 
 spec:
@@ -14,6 +14,19 @@ spec:
   template:
     spec:
       restartPolicy: Never
+
+      initContainers: 
+        - name: wait-for-db 
+          image: postgres:16-alpine 
+          command: 
+            - sh 
+            - -c 
+            - |
+              until pg_isready -h postgres-user -p 5432
+              do
+                echo waiting for postgres
+                sleep 2
+              done
 
       containers:
       - name: migration

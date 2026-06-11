@@ -3,7 +3,7 @@ kind: Service
 
 metadata:
   name: postgres-order
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
 
 spec:
   clusterIP: None
@@ -21,7 +21,7 @@ kind: StatefulSet
 
 metadata:
   name: postgres-order
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
 
 spec:
   serviceName: postgres-order
