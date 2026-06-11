@@ -1,5 +1,5 @@
 ---
-# Source: chaoscart/templates/namespace.yml
+# Source: chaoscart/templates/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -650,3 +650,156 @@ spec:
         resources:
           requests:
             storage: 1Gi
+---
+# Source: chaoscart/templates/order-db-migration.yaml
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: order-db-migration
+  namespace: chaoscart
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+      - name: migration
+
+        image: "ghcr.io/devanshtyagi04/chaoscart-order-service:latest"
+
+        command:
+          - npx
+          - prisma
+          - migrate
+          - deploy
+
+        env:
+          - name: DB_HOST
+            value: "postgres-order"
+
+          - name: DB_PORT
+            value: "5432"
+
+          - name: DB_NAME
+            value: "chaoscart_orders"
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
+---
+# Source: chaoscart/templates/product-db-migration.yaml
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: product-db-migration
+  namespace: chaoscart
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: migration
+
+          image: "ghcr.io/devanshtyagi04/chaoscart-product-service:latest"
+
+          command:
+            - npx
+            - prisma
+            - migrate
+            - deploy
+
+          env:
+            - name: DB_HOST
+              value: "postgres-product"
+
+            - name: DB_PORT
+              value: "5432"
+
+            - name: DB_NAME
+              value: "chaoscart_products"
+
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+---
+# Source: chaoscart/templates/user-db-migration.yaml
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: user-db-migration
+  namespace: chaoscart
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+      - name: migration
+
+        image: "ghcr.io/devanshtyagi04/chaoscart-user-service:latest"
+
+        command:
+          - npx
+          - prisma
+          - migrate
+          - deploy
+
+        env:
+          - name: DB_HOST
+            value: "postgres-user"
+
+          - name: DB_PORT
+            value: "5432"
+
+          - name: DB_NAME
+            value: "chaoscart_users"
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
