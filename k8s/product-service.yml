@@ -85,13 +85,16 @@ kind: Service
 metadata:
   name: product-service
   namespace: chaoscart
+  labels:
+    app: product-service
 
 spec:
   selector:
     app: product-service
 
   ports:
-  - port: 4002
-    targetPort: 4002
+    - name: http
+      port: 4002
+      targetPort: 4002
 
   type: ClusterIP

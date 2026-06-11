@@ -1,0 +1,23 @@
+# order-service-monitor.yaml
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: order-service-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+
+spec:
+  selector:
+    matchLabels:
+      app: order-service
+
+  namespaceSelector:
+    matchNames:
+      - chaoscart
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
