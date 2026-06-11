@@ -21,10 +21,14 @@ spec:
         image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag }}"
 
         command:
-          - npx
-          - prisma
-          - migrate
-          - deploy
+          - sh
+          - -c
+          - |
+            until pg_isready -h postgres-order -p 5432
+            do
+              echo waiting for postgres
+              sleep 2
+            done
 
         env:
           - name: DB_HOST

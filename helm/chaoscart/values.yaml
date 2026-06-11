@@ -53,3 +53,11 @@ postgres:
 
   orderdb:
     name: chaoscart_orders
+
+
+ingress:
+  enabled: true
+
+  className: nginx
+
+  host: localhost

@@ -650,6 +650,139 @@ spec:
         resources:
           requests:
             storage: 1Gi
+
+---
+# Source: chaoscart/templates/ingess.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: chaoscart-ingress
+  namespace: chaoscart
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+    - host: localhost
+
+      http:
+        paths:
+
+          - path: /
+            pathType: Prefix
+
+            backend:
+              service:
+                name: frontend
+
+                port:
+                  number: 80
+
+          - path: /api/users
+            pathType: Prefix
+
+            backend:
+              service:
+                name: user-service
+
+                port:
+                  number: 4001
+
+          - path: /api/products
+            pathType: Prefix
+
+            backend:
+              service:
+                name: product-service
+
+                port:
+                  number: 4002
+
+          - path: /api/orders
+            pathType: Prefix
+
+            backend:
+              service:
+                name: order-service
+
+                port:
+                  number: 4003
+---
+# Source: chaoscart/templates/order-service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: order-service-monitor
+  namespace: monitoring
+
+  labels:
+    release: monitoring
+
+spec:
+  selector:
+    matchLabels:
+      app: order-service
+
+  namespaceSelector:
+    matchNames:
+      - chaoscart
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+---
+# Source: chaoscart/templates/product-service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: product-service-monitor
+  namespace: monitoring
+
+  labels:
+    release: monitoring
+
+spec:
+  selector:
+    matchLabels:
+      app: product-service
+
+  namespaceSelector:
+    matchNames:
+      - chaoscart
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+---
+# Source: chaoscart/templates/user-service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: user-service-monitor
+  namespace: monitoring
+
+  labels:
+    release: monitoring
+
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+
+  namespaceSelector:
+    matchNames:
+      - chaoscart
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
 ---
 # Source: chaoscart/templates/order-db-migration.yaml
 apiVersion: batch/v1
