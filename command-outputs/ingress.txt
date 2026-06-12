@@ -1,0 +1,2 @@
+NAME                CLASS   HOSTS       ADDRESS     PORTS   AGE
+chaoscart-ingress   nginx   localhost   localhost   80      40m

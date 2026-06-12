@@ -1,0 +1,37 @@
+NAME                                                         READY   STATUS    RESTARTS   AGE
+pod/alertmanager-monitoring-kube-prometheus-alertmanager-0   2/2     Running   0          30m
+pod/monitoring-grafana-77d74ff66b-qxb5p                      3/3     Running   0          31m
+pod/monitoring-kube-prometheus-operator-69c79c5d78-m4hsj     1/1     Running   0          31m
+pod/monitoring-kube-state-metrics-868694bc4b-r88k2           1/1     Running   0          31m
+pod/monitoring-prometheus-node-exporter-6dgdr                1/1     Running   0          31m
+pod/monitoring-prometheus-node-exporter-9rjzk                1/1     Running   0          31m
+pod/monitoring-prometheus-node-exporter-fr9vh                1/1     Running   0          31m
+pod/monitoring-prometheus-node-exporter-mzcw4                1/1     Running   0          31m
+pod/prometheus-monitoring-kube-prometheus-prometheus-0       2/2     Running   0          30m
+
+NAME                                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/alertmanager-operated                     ClusterIP   None            <none>        9093/TCP,9094/TCP,9094/UDP   30m
+service/monitoring-grafana                        ClusterIP   10.96.243.180   <none>        80/TCP                       31m
+service/monitoring-kube-prometheus-alertmanager   ClusterIP   10.96.16.178    <none>        9093/TCP,8080/TCP            31m
+service/monitoring-kube-prometheus-operator       ClusterIP   10.96.83.163    <none>        443/TCP                      31m
+service/monitoring-kube-prometheus-prometheus     ClusterIP   10.96.143.22    <none>        9090/TCP,8080/TCP            31m
+service/monitoring-kube-state-metrics             ClusterIP   10.96.200.66    <none>        8080/TCP                     31m
+service/monitoring-prometheus-node-exporter       ClusterIP   10.96.253.187   <none>        9100/TCP                     31m
+service/prometheus-operated                       ClusterIP   None            <none>        9090/TCP                     30m
+
+NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/monitoring-prometheus-node-exporter   4         4         4       4            4           kubernetes.io/os=linux   31m
+
+NAME                                                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/monitoring-grafana                    1/1     1            1           31m
+deployment.apps/monitoring-kube-prometheus-operator   1/1     1            1           31m
+deployment.apps/monitoring-kube-state-metrics         1/1     1            1           31m
+
+NAME                                                             DESIRED   CURRENT   READY   AGE
+replicaset.apps/monitoring-grafana-77d74ff66b                    1         1         1       31m
+replicaset.apps/monitoring-kube-prometheus-operator-69c79c5d78   1         1         1       31m
+replicaset.apps/monitoring-kube-state-metrics-868694bc4b         1         1         1       31m
+
+NAME                                                                    READY   AGE
+statefulset.apps/alertmanager-monitoring-kube-prometheus-alertmanager   1/1     30m
+statefulset.apps/prometheus-monitoring-kube-prometheus-prometheus       1/1     30m

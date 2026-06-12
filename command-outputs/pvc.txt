@@ -1,0 +1,4 @@
+NAME                                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+postgres-storage-postgres-order-0     Bound    pvc-ef45a037-c75e-4b28-a5ba-e78843f1ebd5   1Gi        RWO            standard       <unset>                 51m
+postgres-storage-postgres-product-0   Bound    pvc-f816b25c-7a06-45e2-8af0-a567ea071ac6   1Gi        RWO            standard       <unset>                 51m
+postgres-storage-postgres-user-0      Bound    pvc-5ce0ffb2-38ab-4620-8f2f-83e0e19fb7fa   1Gi        RWO            standard       <unset>                 51m

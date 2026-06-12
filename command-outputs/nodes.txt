@@ -1,0 +1,5 @@
+NAME                      STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                     CONTAINER-RUNTIME
+chaoscart-control-plane   Ready    control-plane   56m   v1.35.1   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2   containerd://2.2.1
+chaoscart-worker          Ready    <none>          56m   v1.35.1   172.18.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2   containerd://2.2.1
+chaoscart-worker2         Ready    <none>          56m   v1.35.1   172.18.0.5    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2   containerd://2.2.1
+chaoscart-worker3         Ready    <none>          56m   v1.35.1   172.18.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2   containerd://2.2.1
