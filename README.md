@@ -212,7 +212,8 @@ The environment runs on a **Kind (Kubernetes in Docker)** cluster configured wit
 - **Schema Migration Jobs**: Database migrations are handled using Kubernetes **Jobs** (`user-db-migration`, `product-db-migration`, `order-db-migration`) that execute Prisma migrations sequentially.
 - **Init Containers**: Backend service deployments use init containers to poll database availability using network checks before spinning up the primary Express app container. This eliminates race conditions during startup.
 
-![Kubernetes Resources](./screenshots/k8s-resources.png)
+![Kubernetes Resources](./screenshots/k8s-resources1.png)
+![Kubernetes Resources](./screenshots/k8s-resources2.png)
 
 ![StatefulSets](./screenshots/k8s-statefulsets.png)
 
