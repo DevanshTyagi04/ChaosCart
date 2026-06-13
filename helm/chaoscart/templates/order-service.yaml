@@ -44,6 +44,10 @@ spec:
         imagePullPolicy: Always
 
         env:
+        
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-order:5432/{{ .Values.orderService.database.name }}"
+
           - name: DB_HOST
             value: {{ .Values.orderService.database.host | quote }}
 

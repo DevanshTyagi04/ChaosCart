@@ -29,38 +29,37 @@ spec:
               done
 
       containers:
-        - name: migration
+      - name: migration
 
-          image: "{{ .Values.productService.image.repository }}:{{ .Values.productService.image.tag }}"
+        image: "{{ .Values.productService.image.repository }}:{{ .Values.productService.image.tag }}"
 
-          command:
-          - sh
-          - -c
-          - |
-            until pg_isready -h postgres-product -p 5432
-            do
-              echo waiting for postgres
-              sleep 2
-            done
+        command:
+          - npx
+          - prisma
+          - migrate
+          - deploy
 
-          env:
-            - name: DB_HOST
-              value: {{ .Values.productService.database.host | quote }}
+        env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-product:5432/{{ .Values.productService.database.name }}"
 
-            - name: DB_PORT
-              value: {{ .Values.productService.database.port | quote }}
+          - name: DB_HOST
+            value: {{ .Values.productService.database.host | quote }}
 
-            - name: DB_NAME
-              value: {{ .Values.productService.database.name | quote }}
+          - name: DB_PORT
+            value: {{ .Values.productService.database.port | quote }}
 
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
+          - name: DB_NAME
+            value: {{ .Values.productService.database.name | quote }}
 
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD

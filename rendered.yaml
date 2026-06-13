@@ -1,16 +1,10 @@
 ---
-# Source: chaoscart/templates/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: chaoscart
----
 # Source: chaoscart/templates/postgres-secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
-  namespace: chaoscart
+  namespace: default
 
 type: Opaque
 
@@ -23,7 +17,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: chaoscart
+  namespace: default
   labels:
     app: frontend
 
@@ -41,7 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: order-service
-  namespace: chaoscart
+  namespace: default
   labels:
     app: order-service
 
@@ -60,7 +54,7 @@ kind: Service
 
 metadata:
   name: postgres-order
-  namespace: chaoscart
+  namespace: default
 
 spec:
   clusterIP: None
@@ -78,7 +72,7 @@ kind: Service
 
 metadata:
   name: postgres-product
-  namespace: chaoscart
+  namespace: default
 
 spec:
   clusterIP: None
@@ -96,7 +90,7 @@ kind: Service
 
 metadata:
   name: postgres-user
-  namespace: chaoscart
+  namespace: default
 
 spec:
   clusterIP: None
@@ -113,7 +107,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: product-service
-  namespace: chaoscart
+  namespace: default
   labels:
     app: product-service
 
@@ -131,7 +125,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: user-service
-  namespace: chaoscart
+  namespace: default
   labels:
     app: user-service
 
@@ -150,7 +144,7 @@ kind: Deployment
 
 metadata:
   name: frontend
-  namespace: chaoscart
+  namespace: default
 
 spec:
   replicas: 2
@@ -181,7 +175,7 @@ kind: Deployment
 
 metadata:
   name: order-service
-  namespace: chaoscart
+  namespace: default
 
 spec:
   replicas: 2
@@ -261,7 +255,7 @@ kind: Deployment
 
 metadata:
   name: product-service
-  namespace: chaoscart
+  namespace: default
 
 spec:
   replicas: 2
@@ -341,7 +335,7 @@ kind: Deployment
 
 metadata:
   name: user-service
-  namespace: chaoscart
+  namespace: default
 
 spec:
   replicas: 2
@@ -424,7 +418,7 @@ kind: StatefulSet
 
 metadata:
   name: postgres-order
-  namespace: chaoscart
+  namespace: default
 
 spec:
   serviceName: postgres-order
@@ -502,7 +496,7 @@ kind: StatefulSet
 
 metadata:
   name: postgres-product
-  namespace: chaoscart
+  namespace: default
 
 spec:
   serviceName: postgres-product
@@ -580,7 +574,7 @@ kind: StatefulSet
 
 metadata:
   name: postgres-user
-  namespace: chaoscart
+  namespace: default
 
 spec:
   serviceName: postgres-user
@@ -658,7 +652,7 @@ kind: Ingress
 
 metadata:
   name: chaoscart-ingress
-  namespace: chaoscart
+  namespace: default
 
 spec:
   ingressClassName: nginx
@@ -727,7 +721,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-      - chaoscart
+      - default
 
   endpoints:
     - port: http
@@ -752,7 +746,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-      - chaoscart
+      - default
 
   endpoints:
     - port: http
@@ -777,7 +771,7 @@ spec:
 
   namespaceSelector:
     matchNames:
-      - chaoscart
+      - default
 
   endpoints:
     - port: http
@@ -790,9 +784,9 @@ kind: Job
 
 metadata:
   name: order-db-migration
-  namespace: chaoscart
+  namespace: default
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation
 
 spec:
@@ -801,6 +795,19 @@ spec:
   template:
     spec:
       restartPolicy: Never
+
+      initContainers: 
+        - name: wait-for-db 
+          image: postgres:16-alpine 
+          command: 
+            - sh 
+            - -c 
+            - |
+              until pg_isready -h postgres-order -p 5432
+              do
+                echo waiting for postgres
+                sleep 2
+              done
 
       containers:
       - name: migration
@@ -841,9 +848,9 @@ kind: Job
 
 metadata:
   name: product-db-migration
-  namespace: chaoscart
+  namespace: default
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation
 
 spec:
@@ -853,38 +860,51 @@ spec:
     spec:
       restartPolicy: Never
 
+      initContainers: 
+        - name: wait-for-db 
+          image: postgres:16-alpine 
+          command: 
+            - sh 
+            - -c 
+            - |
+              until pg_isready -h postgres-product -p 5432
+              do
+                echo waiting for postgres
+                sleep 2
+              done
+
       containers:
-        - name: migration
+      - name: migration
 
-          image: "ghcr.io/devanshtyagi04/chaoscart-product-service:latest"
+        image: "ghcr.io/devanshtyagi04/chaoscart-product-service:latest"
 
-          command:
-            - npx
-            - prisma
-            - migrate
-            - deploy
+        command:
+          - npx
+          - prisma
+          - migrate
+          - deploy
 
-          env:
-            - name: DB_HOST
-              value: "postgres-product"
+        env:
+          - name: DB_HOST
+            value: "postgres-product"
 
-            - name: DB_PORT
-              value: "5432"
+          - name: DB_PORT
+            value: "5432"
 
-            - name: DB_NAME
-              value: "chaoscart_products"
+          - name: DB_NAME
+            value: "chaoscart_products"
 
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
 
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
 ---
 # Source: chaoscart/templates/user-db-migration.yaml
 apiVersion: batch/v1
@@ -892,9 +912,9 @@ kind: Job
 
 metadata:
   name: user-db-migration
-  namespace: chaoscart
+  namespace: default
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation
 
 spec:
@@ -903,6 +923,19 @@ spec:
   template:
     spec:
       restartPolicy: Never
+
+      initContainers: 
+        - name: wait-for-db 
+          image: postgres:16-alpine 
+          command: 
+            - sh 
+            - -c 
+            - |
+              until pg_isready -h postgres-user -p 5432
+              do
+                echo waiting for postgres
+                sleep 2
+              done
 
       containers:
       - name: migration

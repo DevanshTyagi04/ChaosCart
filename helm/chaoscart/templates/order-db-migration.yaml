@@ -34,16 +34,15 @@ spec:
         image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag }}"
 
         command:
-          - sh
-          - -c
-          - |
-            until pg_isready -h postgres-order -p 5432
-            do
-              echo waiting for postgres
-              sleep 2
-            done
+          - npx
+          - prisma
+          - migrate
+          - deploy
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-order:5432/{{ .Values.orderService.database.name }}"
+
           - name: DB_HOST
             value: {{ .Values.orderService.database.host | quote }}
 
