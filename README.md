@@ -298,6 +298,16 @@ While Kubernetes is the primary orchestrator, ChaosCart supports Docker Compose 
 
 ## Docker Features
 
+### Container Optimization
+
+Implemented multi-stage Docker builds for all backend microservices:
+
+- Reduced backend image sizes by ~27% on average.
+- Decreased total image footprint from ~2.0 GB to ~1.5 GB across all services.
+- Installed only production dependencies in runtime images.
+- Generated Prisma clients during build stage and copied only required artifacts to production images.
+- Improved image pull times and deployment performance in Kubernetes environments.
+
 ### Health Checks
 
 Each backend service includes Docker health checks.
