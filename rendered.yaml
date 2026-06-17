@@ -198,6 +198,10 @@ spec:
         imagePullPolicy: Always
 
         env:
+        
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-order:5432/chaoscart_orders"
+
           - name: DB_HOST
             value: "postgres-order"
 
@@ -278,6 +282,9 @@ spec:
         imagePullPolicy: Always
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-product:5432/chaoscart_products"
+
           - name: DB_HOST
             value: "postgres-product"
 
@@ -359,6 +366,9 @@ spec:
         imagePullPolicy: Always
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-user:5432/chaoscart_users"
+
           - name: DB_HOST
             value: "postgres-user"
 
@@ -821,6 +831,9 @@ spec:
           - deploy
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-order:5432/chaoscart_orders"
+
           - name: DB_HOST
             value: "postgres-order"
 
@@ -885,6 +898,9 @@ spec:
           - deploy
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-product:5432/chaoscart_products"
+
           - name: DB_HOST
             value: "postgres-product"
 
@@ -949,6 +965,9 @@ spec:
           - deploy
 
         env:
+          - name: DATABASE_URL
+            value: "postgresql://postgres:postgres123@postgres-user:5432/chaoscart_users"
+            
           - name: DB_HOST
             value: "postgres-user"
 
